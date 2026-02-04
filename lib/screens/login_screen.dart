@@ -1,8 +1,10 @@
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 // import 'package:totelxapp/widgets/primery_button.dart';
 import 'otp_screen.dart';
 // import '../widgets/primary_button.dart';
 import '../widgets/primery_button.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class LoginScreen extends StatelessWidget {
   const LoginScreen({super.key});
@@ -20,12 +22,76 @@ class LoginScreen extends StatelessWidget {
             const SizedBox(height: 40),
             Image.asset("assets/login.png", height: 120),
             const SizedBox(height: 30),
+            Align(
+              alignment: AlignmentGeometry.topLeft,
+              child: Text(
+                "Enter Phone Number",
+                style: GoogleFonts.montserrat(
+                  fontWeight: FontWeight.w600,
+                  fontSize: 14,
+                  height: 1.0, // 100%
+                  letterSpacing: 0,
+                  color: Color(0xFF333333),
+                ),
+              ),
+            ),
+            const SizedBox(height: 20),
+
             TextField(
               controller: phoneController,
               keyboardType: TextInputType.phone,
-              decoration: const InputDecoration(
-                hintText: "Enter Phone Number",
-                border: OutlineInputBorder(),
+              decoration: InputDecoration(
+                hint: Text(
+                  "Enter Phone Number",
+                  style: GoogleFonts.montserrat(color: Colors.grey),
+                ),
+
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10),
+                  borderSide: const BorderSide(color: Colors.grey, width: 1.2),
+                ),
+
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10),
+                  borderSide: const BorderSide(color: Colors.grey, width: 1.5),
+                ),
+              ),
+            ),
+
+            const SizedBox(height: 20),
+            Align(
+              alignment: AlignmentGeometry.topLeft,
+              child: RichText(
+                text: TextSpan(
+                  style: GoogleFonts.montserrat(
+                    fontWeight: FontWeight.w500,
+                    fontSize: 10,
+                    color: const Color(0xFF333333),
+                  ),
+                  children: [
+                    const TextSpan(text: "By Continuing, I agree to TotalX’s "),
+
+                    TextSpan(
+                      text: "Terms and Conditions",
+                      style: GoogleFonts.montserrat(color: Colors.blue),
+                      recognizer: TapGestureRecognizer()
+                        ..onTap = () => print("Terms clicked"),
+                    ),
+
+                    const TextSpan(text: " & "),
+
+                    TextSpan(
+                      text: "Privacy Policy",
+                      style: GoogleFonts.montserrat(color: Colors.blue),
+                      recognizer: TapGestureRecognizer()
+                        ..onTap = () => print("Privacy clicked"),
+                    ),
+                  ],
+                ),
               ),
             ),
             const SizedBox(height: 20),
