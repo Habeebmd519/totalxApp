@@ -1,7 +1,7 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:totelxapp/screens/home_screen.dart';
-import 'package:totelxapp/services/auth_service.dart';
+// import 'package:totelxapp/screens/home_screen.dart';
+// import 'package:totelxapp/services/auth_service.dart';
 import 'package:totelxapp/services/msg91_service.dart';
 // import 'package:totelxapp/widgets/primery_button.dart';
 import 'otp_screen.dart';
@@ -103,14 +103,18 @@ class LoginScreen extends StatelessWidget {
               onPressed: () async {
                 final phone = phoneController.text.trim();
 
-                if (phone.length != 10) {
+                if (phone.isEmpty || phone.length != 10) {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text("Enter valid mobile number")),
+                    const SnackBar(
+                      content: Text("Enter a valid 10-digit mobile number"),
+                    ),
                   );
                   return;
                 }
 
-                final success = await AuthService.sendOtp(phone);
+                final success = await Msg91Service.sendOtp(phone);
+
+                if (!context.mounted) return;
 
                 if (success) {
                   Navigator.push(
@@ -119,7 +123,9 @@ class LoginScreen extends StatelessWidget {
                   );
                 } else {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text("Failed to send OTP")),
+                    const SnackBar(
+                      content: Text("OTP sending failed. Please try again."),
+                    ),
                   );
                 }
               },
