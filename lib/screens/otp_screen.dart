@@ -1,13 +1,15 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:totelxapp/services/msg91_service.dart';
 // import 'package:totelxapp/widgets/primery_button.dart';
 import 'home_screen.dart';
 import '../widgets/primery_button.dart';
 import 'package:pin_code_fields/pin_code_fields.dart';
 
 class OTPScreen extends StatelessWidget {
-  const OTPScreen({super.key});
+  final String mobile;
+  OTPScreen({super.key, required this.mobile});
 
   @override
   Widget build(BuildContext context) {
@@ -125,11 +127,31 @@ class OTPScreen extends StatelessWidget {
             const SizedBox(height: 20),
             PrimaryButton(
               text: "Verify",
-              onPressed: () {
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(builder: (_) => const HomeScreen()),
-                );
+              onPressed: () async {
+                // Navigator.push(
+                //   context,
+                //   MaterialPageRoute(builder: (_) => HomeScreen()),
+                // );
+                // final otp = otpController.text.trim();
+
+                // if (otp.length == 6) {
+                //   bool ok = await Msg91Service.verifyOtp(mobile, otp);
+
+                //   if (ok) {
+                //     Navigator.pushReplacement(
+                //       context,
+                //       MaterialPageRoute(builder: (_) => const HomeScreen()),
+                //     );
+                //   } else {
+                //     ScaffoldMessenger.of(context).showSnackBar(
+                //       const SnackBar(content: Text("Invalid OTP!")),
+                //     );
+                //   }
+                // } else {
+                //   ScaffoldMessenger.of(context).showSnackBar(
+                //     const SnackBar(content: Text("Enter 6 digit OTP")),
+                //   );
+                // }
               },
             ),
           ],
@@ -138,3 +160,25 @@ class OTPScreen extends StatelessWidget {
     );
   }
 }
+
+
+//  /// VERIFY OTP
+//   static Future<bool> verifyOtp(String mobile, String otp) async {
+//     try {
+//       final formattedMobile = "91$mobile";
+
+//       final res = await _msg91.getOtp().verify(
+//         otp: otp,
+//         mobileNumber: formattedMobile,
+//       );
+
+//       print("VERIFY RESPONSE: $res");
+
+//       // The package returns an object with type "success" if OTP is correct
+//       return res.type == "success";
+//     } catch (e, s) {
+//       print("VERIFY ERROR: $e");
+//       print(s);
+//       return false;
+//     }
+//   }

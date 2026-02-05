@@ -148,7 +148,7 @@ packages:
     source: hosted
     version: "1.0.1"
   http:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: http
       sha256: "87721a4a50b19c7f1d49001e51409bddc46303966ce89a65af4f4e6004896412"
@@ -227,6 +227,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.17.0"
+  msg91:
+    dependency: "direct main"
+    description:
+      name: msg91
+      sha256: "1c6df72236dba98b6d69e83a1a00424715d8d5e3b0e91358696e26bcf1604d4f"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.0.5"
   native_toolchain_c:
     dependency: transitive
     description:

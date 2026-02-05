@@ -37,6 +37,8 @@ dependencies:
   flutter_bloc: ^9.1.1
   google_fonts: ^8.0.0
   pin_code_fields: ^8.0.1
+  http: ^1.6.0
+  msg91: ^1.0.5
 
 dev_dependencies:
   flutter_test:
