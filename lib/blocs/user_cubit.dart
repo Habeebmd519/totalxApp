@@ -1,24 +1,102 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:hive_flutter/hive_flutter.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:totelxapp/blocs/user_state.dart';
 import '../models/user.dart';
 
-class UserCubit extends Cubit<List<User>> {
-  UserCubit() : super([]);
+class UserCubit extends Cubit<UserState> {
+  final Box<User> _userBox = Hive.box<User>('users');
+  final ImagePicker _picker = ImagePicker();
 
-  void addUser(User user) {
-    final updated = [...state, user];
-    emit(updated);
+  UserCubit() : super(UserState(users: [])) {
+    loadUsers(); // Load from Hive on startup
   }
 
-  void sortByAge() {
-    final sorted = [...state]..sort((a, b) => a.age.compareTo(b.age));
-    emit(sorted);
+  // Load from Hive
+  void loadUsers() {
+    emit(UserState(users: _userBox.values.toList()));
   }
 
+  // Image Picking Logic
+  Future<void> pickImage() async {
+    try {
+      final XFile? image = await _picker.pickImage(
+        source: ImageSource.gallery,
+        imageQuality: 50, // Pro-tip: Compress to save Hive storage space
+      );
+
+      if (image != null) {
+        emit(UserState(users: state.users, selectedImagePath: image.path));
+      }
+    } catch (e) {
+      print("Error picking image: $e");
+      // You can emit an error state here if you want to show a SnackBar
+    }
+  }
+
+  // Save to Hive
+  Future<void> addUser(String name, int age) async {
+    final newUser = User(
+      name: name,
+      age: age,
+      imagePath: state.selectedImagePath,
+    );
+
+    await _userBox.add(newUser); // Save to local DB
+    emit(
+      UserState(
+        users: _userBox.values.toList(),
+        selectedImagePath: null, // Clear image for next time
+      ),
+    );
+  }
+
+  // Sorting
+  // To Filter
+  void filterByAge(String category) {
+    final allUsers = _userBox.values.toList();
+    List<User> filtered;
+
+    if (category == 'Elder') {
+      filtered = allUsers.where((u) => u.age >= 60).toList();
+    } else if (category == 'Younger') {
+      filtered = allUsers.where((u) => u.age < 60).toList();
+    } else {
+      filtered = allUsers;
+    }
+
+    emit(
+      UserState(
+        users: filtered,
+        selectedImagePath: state.selectedImagePath,
+        activeFilter: category, // Passing it here fixes the error
+      ),
+    );
+  }
+
+  // To Clear/Search/Add
+  void loadUserd() {
+    emit(
+      UserState(
+        users: _userBox.values.toList(),
+        selectedImagePath: state.selectedImagePath,
+        activeFilter: 'All', // Reset to All
+      ),
+    );
+  }
+
+  // Search
   void search(String query) {
-    final filtered = state
+    if (query.isEmpty) {
+      loadUsers();
+      return;
+    }
+    final filtered = _userBox.values
         .where((u) => u.name.toLowerCase().contains(query.toLowerCase()))
         .toList();
-    emit(filtered);
+    emit(
+      UserState(users: filtered, selectedImagePath: state.selectedImagePath),
+    );
   }
 }
 
