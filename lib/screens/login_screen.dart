@@ -1,6 +1,7 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:totelxapp/screens/home_screen.dart';
+import 'package:totelxapp/services/auth_service.dart';
 import 'package:totelxapp/services/msg91_service.dart';
 // import 'package:totelxapp/widgets/primery_button.dart';
 import 'otp_screen.dart';
@@ -100,33 +101,27 @@ class LoginScreen extends StatelessWidget {
             PrimaryButton(
               text: "Get OTP",
               onPressed: () async {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (_) => HomeScreen()),
-                );
-                // final phone = phoneController.text.trim();
+                final phone = phoneController.text.trim();
 
-                // if (phone.length != 10) {
-                //   ScaffoldMessenger.of(context).showSnackBar(
-                //     const SnackBar(
-                //       content: Text("Enter a valid phone number."),
-                //     ),
-                //   );
-                //   return;
-                // }
+                if (phone.length != 10) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text("Enter valid mobile number")),
+                  );
+                  return;
+                }
 
-                // bool result = await Msg91Service.sendOtp(phone);
+                final success = await AuthService.sendOtp(phone);
 
-                // if (result) {
-                //   Navigator.push(
-                //     context,
-                //     MaterialPageRoute(builder: (_) => OTPScreen(mobile: phone)),
-                //   );
-                // } else {
-                //   ScaffoldMessenger.of(context).showSnackBar(
-                //     const SnackBar(content: Text("Failed to send OTP.")),
-                //   );
-                // }
+                if (success) {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => OTPScreen(mobile: phone)),
+                  );
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text("Failed to send OTP")),
+                  );
+                }
               },
             ),
           ],
