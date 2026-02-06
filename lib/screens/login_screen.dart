@@ -103,29 +103,23 @@ class LoginScreen extends StatelessWidget {
               onPressed: () async {
                 final phone = phoneController.text.trim();
 
-                if (phone.isEmpty || phone.length != 10) {
+                if (phone.length != 10) {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text("Enter a valid 10-digit mobile number"),
-                    ),
+                    const SnackBar(content: Text("Enter valid mobile number")),
                   );
                   return;
                 }
 
-                final success = await Msg91Service.sendOtp(phone);
+                final sent = await Msg91Service.sendOtp(phone);
 
-                if (!context.mounted) return;
-
-                if (success) {
+                if (sent) {
                   Navigator.push(
                     context,
                     MaterialPageRoute(builder: (_) => OTPScreen(mobile: phone)),
                   );
                 } else {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text("OTP sending failed. Please try again."),
-                    ),
+                    const SnackBar(content: Text("OTP failed to send")),
                   );
                 }
               },

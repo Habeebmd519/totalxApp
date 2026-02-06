@@ -1,6 +1,9 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:totelxapp/blocs/timer_cubit/timer_cubit.dart';
+import 'package:totelxapp/blocs/timer_cubit/timer_state.dart';
 import 'package:totelxapp/services/msg91_service.dart';
 // import 'package:totelxapp/widgets/primery_button.dart';
 import 'home_screen.dart';
@@ -38,6 +41,10 @@ class OTPScreen extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 20),
+            Text(
+              "Enter the verification code we just sent to your number +91 *******${mobile.substring(mobile.length - 2)}.",
+            ),
+            SizedBox(height: 15),
             // TextField(
             //   controller: otpController,
             //   keyboardType: TextInputType.number,
@@ -96,62 +103,91 @@ class OTPScreen extends StatelessWidget {
             ),
 
             const SizedBox(height: 20),
-            RichText(
-              text: TextSpan(
-                style: GoogleFonts.montserrat(
-                  fontSize: 10,
-                  color: Colors.black87,
-                  fontWeight: FontWeight.w500,
-                ),
-                children: [
-                  const TextSpan(text: "Don't get OTP? "),
+            BlocBuilder<TimerBloc, TimerState>(
+              builder: (context, state) {
+                return Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    // 1. Red Timer (Shows only when running)
+                    if (state.isRunning && state.seconds > 0)
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 15.0),
+                        child: Text(
+                          "${state.seconds} Sec",
+                          style: GoogleFonts.montserrat(
+                            fontSize: 16,
+                            color: const Color(
+                              0xFFF4511E,
+                            ), // Reddish-Coral color
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
 
-                  TextSpan(
-                    text: "Resend",
-                    style: const TextStyle(
-                      color: Colors.blue,
-                      fontWeight: FontWeight.w600,
+                    // 2. Resend Section
+                    RichText(
+                      text: TextSpan(
+                        style: GoogleFonts.montserrat(
+                          fontSize: 14,
+                          color: Colors.black87,
+                          fontWeight: FontWeight.w500,
+                        ),
+                        children: [
+                          const TextSpan(text: "Don't Get OTP? "),
+                          TextSpan(
+                            text: "Resend",
+                            style: TextStyle(
+                              color: state.isRunning
+                                  ? Colors.grey
+                                  : Colors.blue,
+                              fontWeight: FontWeight.w600,
+                              decoration: TextDecoration.underline,
+                            ),
+                            recognizer: TapGestureRecognizer()
+                              ..onTap = state.isRunning
+                                  ? null
+                                  : () {
+                                      // Restart the timer via Bloc
+                                      context.read<TimerBloc>().startTimer();
+                                      // Trigger your API call here
+                                    },
+                          ),
+                        ],
+                      ),
                     ),
-                    recognizer: TapGestureRecognizer()
-                      ..onTap = () {
-                        print("Resend clicked");
-
-                        // 👉 call your resend OTP API here
-                        // context.read<AuthCubit>().resendOtp();
-                      },
-                  ),
-                ],
-              ),
+                  ],
+                );
+              },
             ),
 
             const SizedBox(height: 20),
             PrimaryButton(
               text: "Verify",
               onPressed: () async {
-                // Navigator.push(
-                //   context,
-                //   MaterialPageRoute(builder: (_) => HomeScreen()),
-                // );
-                // final otp = otpController.text.trim();
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => HomeScreen()),
+                );
+                final otp = otpController.text.trim();
 
-                // if (otp.length == 6) {
-                //   bool ok = await Msg91Service.verifyOtp(mobile, otp);
+                if (otp.length == 6) {
+                  bool ok = await Msg91Service.verifyOtp(mobile, otp);
 
-                //   if (ok) {
-                //     Navigator.pushReplacement(
-                //       context,
-                //       MaterialPageRoute(builder: (_) => const HomeScreen()),
-                //     );
-                //   } else {
-                //     ScaffoldMessenger.of(context).showSnackBar(
-                //       const SnackBar(content: Text("Invalid OTP!")),
-                //     );
-                //   }
-                // } else {
-                //   ScaffoldMessenger.of(context).showSnackBar(
-                //     const SnackBar(content: Text("Enter 6 digit OTP")),
-                //   );
-                // }
+                  if (ok) {
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(builder: (_) => const HomeScreen()),
+                    );
+                  } else {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text("Invalid OTP!")),
+                    );
+                  }
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text("Enter 6 digit OTP")),
+                  );
+                }
               },
             ),
           ],

@@ -1,34 +1,29 @@
-import 'package:msg91/msg91.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 
 class Msg91Service {
-  static final Msg91 _msg91 = Msg91().initialize(
-    authKey: "492407AzE1hGroTmq698453deP1",
-  );
+  static const String _authKey = "492407AzE1hGroTmq698453deP1";
+  static const String _templateId = "6984fa114ca1922e27175672";
 
   /// SEND OTP
   static Future<bool> sendOtp(String mobile) async {
     try {
-      final formattedMobile = "91$mobile";
-
-      final res = await _msg91.getOtp().send(
-        mobileNumber: formattedMobile,
-        options: OtpOptions(templateId: "6983c5536768b5163830763d"),
+      final response = await http.post(
+        Uri.parse("https://control.msg91.com/api/v5/otp"),
+        headers: {"Content-Type": "application/json", "authkey": _authKey},
+        body: jsonEncode({
+          "template_id": _templateId,
+          "mobile": "91$mobile",
+          "otp_expiry": 5,
+        }),
       );
 
-      print("OTP SEND RESPONSE => $res");
+      print("📤 SEND OTP RESPONSE => ${response.body}");
 
-      if (res is String) {
-        return res.toLowerCase() == "success";
-      }
-
-      if (res is Map && res['type'] != null) {
-        return res['type'] == "success";
-      }
-
-      return false;
-    } catch (e, s) {
-      print("OTP ERROR => $e");
-      print(s);
+      final data = jsonDecode(response.body);
+      return data["type"] == "success";
+    } catch (e) {
+      print("❌ SEND OTP ERROR => $e");
       return false;
     }
   }
@@ -36,27 +31,18 @@ class Msg91Service {
   /// VERIFY OTP
   static Future<bool> verifyOtp(String mobile, String otp) async {
     try {
-      final formattedMobile = "91$mobile";
-
-      final res = await _msg91.getOtp().verify(
-        mobileNumber: formattedMobile,
-        otp: otp,
+      final response = await http.post(
+        Uri.parse("https://control.msg91.com/api/v5/otp/verify"),
+        headers: {"Content-Type": "application/json", "authkey": _authKey},
+        body: jsonEncode({"mobile": "91$mobile", "otp": otp}),
       );
 
-      print("VERIFY OTP RESPONSE => $res");
+      print("📥 VERIFY OTP RESPONSE => ${response.body}");
 
-      if (res is String) {
-        return res.toLowerCase() == "success";
-      }
-
-      if (res is Map && res['type'] != null) {
-        return res['type'] == "success";
-      }
-
-      return false;
-    } catch (e, s) {
-      print("VERIFY OTP ERROR => $e");
-      print(s);
+      final data = jsonDecode(response.body);
+      return data["type"] == "success";
+    } catch (e) {
+      print("❌ VERIFY OTP ERROR => $e");
       return false;
     }
   }
